@@ -1,12 +1,29 @@
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 
+# Load environment variables
 load_dotenv()
 
-llm = ChatOpenAI(
-    model="gpt-3.5-turbo"
+# Create LLM object
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.7
 )
 
-response = llm.invoke("What is Agentic AI?")
+# Infinite chat loop
+while True:
 
-print(response.content)
+    # User input
+    question = input("\nAsk Anything: ")
+
+    # Exit condition
+    if question.lower() == "exit":
+        print("Goodbye!")
+        break
+
+    # Send prompt to LLM
+    response = llm.invoke(question)
+
+    # Print AI response
+    print("\nAI Response:\n")
+    print(response.content)
