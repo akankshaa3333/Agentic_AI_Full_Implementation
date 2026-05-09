@@ -1,30 +1,53 @@
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.tools import tool
-from langchain_core.messages import HumanMessage, ToolMessage
+from langchain_core.messages import HumanMessage
+from langchain_community.tools import DuckDuckGoSearchRun
 
 # Load environment variables
 load_dotenv()
 
 # Create LLM
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
     temperature=0
 )
 
-# Create calculator tool
+# ---------------- CALCULATOR TOOL ---------------- #
+
 @tool
 def calculator(expression: str) -> str:
     """
-    Useful for solving mathematical expressions.
+    Useful for solving mathematical calculations.
+    Input should be a valid mathematical expression.
     """
 
-    return str(eval(expression))
+    try:
+        result = eval(expression)
+        return str(result)
 
-# Bind tools
-llm_with_tools = llm.bind_tools([calculator])
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-# Chat loop
+
+# ---------------- SEARCH TOOL ---------------- #
+
+search_tool = DuckDuckGoSearchRun()
+
+# ---------------- TOOLS LIST ---------------- #
+
+tools = {
+    "calculator": calculator,
+    "duckduckgo_search": search_tool
+}
+
+# Bind tools to LLM
+llm_with_tools = llm.bind_tools(
+    [calculator, search_tool]
+)
+
+# ---------------- CHAT LOOP ---------------- #
+
 while True:
 
     question = input("\nAsk Anything: ")
@@ -33,44 +56,61 @@ while True:
         print("Goodbye!")
         break
 
-    # Step 1: Send question to LLM
+    # Send question to AI
     response = llm_with_tools.invoke([
         HumanMessage(content=question)
     ])
 
-    # Step 2: Check if tool call exists
+    # Print raw response
+    print("\n============================")
+    print("RAW AI RESPONSE")
+    print("============================")
+    print(response)
+
+    # Check tool calls
     if response.tool_calls:
 
-        # Get first tool call
-        tool_call = response.tool_calls[0]
+        print("\n============================")
+        print("TOOL CALL DETECTED")
+        print("============================")
 
-        # Tool name
-        tool_name = tool_call["name"]
+        for tool_call in response.tool_calls:
 
-        # Tool arguments
-        tool_args = tool_call["args"]
+            tool_name = tool_call["name"]
+            tool_args = tool_call["args"]
 
-        print("\nTool Selected:", tool_name)
-        print("Tool Args:", tool_args)
+            print(f"\nTool Name: {tool_name}")
+            print(f"Tool Args: {tool_args}")
 
-        # Execute calculator tool
-        result = calculator.invoke(tool_args)
+            try:
 
-        print("Tool Result:", result)
+                # Calculator Tool
+                if tool_name == "calculator":
 
-        # Step 3: Send tool result back to LLM
-        final_response = llm_with_tools.invoke([
-            HumanMessage(content=question),
-            response,
-            ToolMessage(
-                content=result,
-                tool_call_id=tool_call["id"]
-            )
-        ])
+                    result = calculator.invoke(tool_args)
 
-        print("\nFinal Answer:\n")
-        print(final_response.content)
+                # Search Tool
+                elif tool_name == "duckduckgo_search":
+
+                    query = tool_args.get("query", "")
+                    result = search_tool.invoke(query)
+
+                else:
+                    result = "Unknown Tool"
+
+                print("\n============================")
+                print("TOOL RESULT")
+                print("============================")
+                print(result)
+
+            except Exception as e:
+
+                print("\nTool Execution Error:")
+                print(str(e))
 
     else:
-        print("\nAI Response:\n")
+
+        print("\n============================")
+        print("FINAL ANSWER")
+        print("============================")
         print(response.content)
