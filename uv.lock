@@ -13,6 +13,7 @@ dependencies = [
     { name = "langchain-community" },
     { name = "langchain-groq" },
     { name = "langchain-openai" },
+    { name = "langgraph" },
     { name = "python-dotenv" },
 ]
 
@@ -24,6 +25,7 @@ requires-dist = [
     { name = "langchain-community", specifier = ">=0.4.1" },
     { name = "langchain-groq", specifier = ">=0.0.1" },
     { name = "langchain-openai", specifier = ">=1.2.1" },
+    { name = "langgraph", specifier = ">=1.1.10" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
 ]
 
