@@ -9,4 +9,5 @@ dependencies = [
     "langchain-openai>=1.2.1",
     "langchain-groq>=0.0.1",
     "python-dotenv>=1.2.2",
+    "langchain-community>=0.4.1",
 ]
