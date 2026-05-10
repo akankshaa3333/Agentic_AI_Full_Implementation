@@ -13,4 +13,6 @@ dependencies = [
     "duckduckgo-search>=8.1.1",
     "ddgs>=9.14.2",
     "langgraph>=1.1.10",
+    "chromadb>=1.5.9",
+    "pypdf>=6.11.0",
 ]
