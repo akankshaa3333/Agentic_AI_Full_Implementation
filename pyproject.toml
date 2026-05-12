@@ -15,4 +15,6 @@ dependencies = [
     "langgraph>=1.1.10",
     "chromadb>=1.5.9",
     "pypdf>=6.11.0",
+    "fastapi>=0.136.1",
+    "uvicorn>=0.46.0",
 ]
