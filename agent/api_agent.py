@@ -32,16 +32,15 @@ class ChatResponse(BaseModel):
 
     answer: str
 
-# ---------------- ASYNC ENDPOINT ---------------- #
+# ---------------- API ROUTE ---------------- #
 
 @app.post("/chat", response_model=ChatResponse)
 
-async def chat(request: ChatRequest):
+def chat_endpoint(request: ChatRequest):
 
     question = request.question
 
-    # Async LLM call
-    response = await llm.ainvoke(question)
+    response = llm.invoke(question)
 
     return ChatResponse(
         answer=response.content
